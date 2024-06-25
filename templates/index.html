@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Sorgu</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 15px;
+            display: block;
+            text-align: left;
+        }
+        textarea, input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .highlight {
+            color: red;
+            font-weight: bold;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .button-group a, .button-group button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .button-group a:hover, .button-group button:hover {
+            background-color: #0056b3;
+        }
+        .error-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #f5c2c7;
+            border-radius: 5px;
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        .checkbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .checkbox-container div {
+            margin: 5px 10px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .checkbox-container label {
+            margin-left: 5px;
+            margin-top: 2px; /* Label'i checkbox ile hizalamak için margin-top ekliyoruz */
+        }
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 5px;
+            margin-top: 0;
+        }
+    </style>
+    <script>
+        function validateDomains() {
+            const textarea = document.getElementById('domains');
+            const highlightedTextDiv = document.getElementById('highlighted-text');
+            const domainInput = textarea.value;
+            const invalidChars = /[^a-z0-9.-]/i;
+            const turkishChars = /[çğıöşüÇĞİÖŞÜ]/;
+
+            let domains = domainInput.split(/[\s,]+/).map(domain => domain.trim());
+            let validDomains = [];
+            let invalidDomains = [];
+
+            domains.forEach(domain => {
+                if (turkishChars.test(domain) || invalidChars.test(domain)) {
+                    invalidDomains.push(domain);
+                } else {
+                    validDomains.push(domain);
+                }
+            });
+
+            if (invalidDomains.length > 0) {
+                let highlightedText = invalidDomains.map(domain => `<span class="highlight">${domain}</span>`).join(', ');
+
+                highlightedTextDiv.innerHTML = highlightedText;
+                highlightedTextDiv.style.display = 'block';
+                alert("Bazı domain adlarında hatalı karakterler bulundu. Sadece İngilizce karakter kullanınız.");
+                return false;
+            } else {
+                highlightedTextDiv.style.display = 'none';
+                return true;
+            }
+        }
+
+        function resetTextarea() {
+            const highlightedTextDiv = document.getElementById('highlighted-text');
+            highlightedTextDiv.style.display = 'none';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Domain Sorgulama</h1>
+        <form method="post" onsubmit="return validateDomains()">
+            <label for="domains">Sorgu yapılacak domain isimlerini girin (aralarına ',' koyun):</label>
+            <textarea id="domains" name="domains" rows="4" cols="50" oninput="resetTextarea()"></textarea>
+            <label for="highlighted-text">Hatalı Kelimeler:</label>
+            <div id="highlighted-text" class="error-container" style="display: none;"></div>
+            <label for="uzanti">Sorgulamak istediğiniz uzantıları seçin:</label>
+            <div class="checkbox-container">
+                <div>
+                    <input type="checkbox" id="com" name="uzantilar" value="com">
+                    <label for="com">.com</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="net" name="uzantilar" value="net">
+                    <label for="net">.net</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="org" name="uzantilar" value="org">
+                    <label for="org">.org</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="de" name="uzantilar" value="de">
+                    <label for="de">.de</label>
+                </div>
+                <!-- İstediğiniz diğer uzantıları burada ekleyebilirsiniz -->
+            </div>
+            <input type="submit" value="Sorgula">
+        </form>
+
+        {% if results %}
+            <h2>Sorgu Sonuçları:</h2>
+            <table>
+                <tr>
+                    <th>Domain</th>
+                    <th>Durum</th>
+                </tr>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.Domain }}</td>
+                    <td>{{ result.Durum }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            <div class="button-group">
+                <a href="{{ url_for('download') }}">Excel dosyasını indir</a>
+                <a href="{{ url_for('new_query') }}"><button>Yeni Sorgu Başlat</button></a>
+            </div>
+        {% endif %}
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>
