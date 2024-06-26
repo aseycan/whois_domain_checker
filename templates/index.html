@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domain Sorgu</title>
+    <title>Domain Sorgulama</title>
     <style>
         body {
             display: flex;
@@ -21,7 +21,7 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             width: 80%;
-            max-width: 600px;
+            max-width: 800px; /* Genişliği artırdık */
             text-align: center;
         }
         h1 {
@@ -59,10 +59,14 @@
         }
         .button-group {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
+            gap: 10px;
             margin-top: 20px;
         }
         .button-group a, .button-group button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             background-color: #007bff;
             color: white;
             border: none;
@@ -71,6 +75,7 @@
             text-decoration: none;
             font-size: 14px;
             cursor: pointer;
+            height: 40px;
         }
         .button-group a:hover, .button-group button:hover {
             background-color: #0056b3;
@@ -85,22 +90,38 @@
         }
         .checkbox-container {
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
+            flex-wrap: wrap;
             margin-top: 20px;
         }
         .checkbox-container div {
-            margin: 5px 10px;
+            margin: 5px 15px; /* Daha iyi hizalama için margin artırıldı */
             display: flex;
-            align-items: flex-start;
+            align-items: center;
         }
         .checkbox-container label {
             margin-left: 5px;
-            margin-top: 2px; /* Label'i checkbox ile hizalamak için margin-top ekliyoruz */
+            margin-top: 0; /* Label hizalaması için margin-top sıfırlandı */
         }
-        .checkbox-container input[type="checkbox"] {
-            margin-right: 5px;
-            margin-top: 0;
+        .results-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .results-table {
+            width: 45%;
+        }
+        .results-table h2 {
+            text-align: left; /* Başlıkları sola hizalamak için eklendi */
+        }
+        .results-table th, .results-table td {
+            padding: 8px;
+            text-align: left; /* Domain isimlerini sola hizalamak için eklendi */
+            border-bottom: 1px solid #ddd;
+        }
+        .results-table table {
+            width: 100%; /* Tabloyu tam genişlikte yap */
         }
     </style>
     <script>
@@ -174,21 +195,36 @@
         </form>
 
         {% if results %}
-            <h2>Sorgu Sonuçları:</h2>
-            <table>
-                <tr>
-                    <th>Domain</th>
-                    <th>Durum</th>
-                </tr>
-                {% for result in results %}
-                <tr>
-                    <td>{{ result.Domain }}</td>
-                    <td>{{ result.Durum }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+            <div class="results-container">
+                <div class="results-table">
+                    <h2>Kullanılabilir</h2>
+                    <table>
+                        <tr>
+                            <th>Domain</th>
+                        </tr>
+                        {% for result in results.available %}
+                        <tr>
+                            <td>{{ result.Domain }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="results-table">
+                    <h2>Kullanılamaz</h2>
+                    <table>
+                        <tr>
+                            <th>Domain</th>
+                        </tr>
+                        {% for result in results.unavailable %}
+                        <tr>
+                            <td>{{ result.Domain }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
             <div class="button-group">
-                <a href="{{ url_for('download') }}">Excel dosyasını indir</a>
+                <a href="{{ url_for('download') }}">Excel Olarak Kaydet</a>
                 <a href="{{ url_for('new_query') }}"><button>Yeni Sorgu Başlat</button></a>
             </div>
         {% endif %}
